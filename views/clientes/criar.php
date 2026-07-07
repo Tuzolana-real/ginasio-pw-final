@@ -53,7 +53,6 @@ $flash = get_flash();
         <select name="genero">
             <option value="M">Masculino</option>
             <option value="F">Feminino</option>
-            <option value="Outro">Outro</option>
         </select><br><br>
 
         <label>Telefone:</label><br>
