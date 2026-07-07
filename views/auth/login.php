@@ -47,6 +47,8 @@ $flash = get_flash();
         </label><br><br>
 
         <button type="submit">Entrar</button>
+
+        <p><a href="recuperar-senha.php">Esqueci a minha senha</a></p>
     </form>
 </body>
 </html>

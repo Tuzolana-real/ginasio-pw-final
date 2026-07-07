@@ -13,4 +13,11 @@ class Utilizador extends Model
         $stmt->execute(['email' => $email]);
         return $stmt->fetch();
     }
+
+    /** Atualiza apenas a senha (já em hash) de um utilizador. */
+    public function updateSenha($id, $novaSenhaHash)
+    {
+        $stmt = $this->db->prepare("UPDATE utilizadores SET senha = :senha WHERE id = :id");
+        return $stmt->execute(['senha' => $novaSenhaHash, 'id' => $id]);
+    }
 }
