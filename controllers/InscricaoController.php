@@ -3,6 +3,7 @@
 require_once __DIR__ . '/../models/Inscricao.php';
 require_once __DIR__ . '/../models/Cliente.php';
 require_once __DIR__ . '/../models/Plano.php';
+require_once __DIR__ . '/../models/Modalidade.php';
 require_once __DIR__ . '/../includes/helpers.php';
 
 class InscricaoController
@@ -10,12 +11,14 @@ class InscricaoController
     private $inscricaoModel;
     private $clienteModel;
     private $planoModel;
+    private $modalidadeModel;
 
     public function __construct()
     {
         $this->inscricaoModel = new Inscricao();
         $this->clienteModel   = new Cliente();
         $this->planoModel     = new Plano();
+        $this->modalidadeModel = new Modalidade();
     }
 
     public function listar()
@@ -37,6 +40,11 @@ class InscricaoController
     public function listarPlanos()
     {
         return $this->planoModel->findAll('nome ASC');
+    }
+
+    public function listarModalidades()
+    {
+        return $this->modalidadeModel->findAll('nome ASC');
     }
 
     public function criar($dados)

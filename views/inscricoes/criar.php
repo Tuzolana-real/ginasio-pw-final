@@ -23,17 +23,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 $clientes = $controller->listarClientes();
-$planos   = $controller->listarPlanos();
-$flash    = get_flash();
+$planos = $controller->listarPlanos();
+$modalidades = $controller->listarModalidades();
+$flash = get_flash();
 ?>
 <!DOCTYPE html>
 <html lang="pt">
 <head>
     <meta charset="UTF-8">
-    <title>Nova Inscrição - Sistema de Ginásio</title>
+    <title>Nova Inscricao - Sistema de Ginasio</title>
 </head>
 <body>
-    <h2>Nova Inscrição</h2>
+    <h2>Nova Inscricao</h2>
 
     <?php if ($flash): ?>
         <p style="color: red"><?= htmlspecialchars($flash['message']) ?></p>
@@ -53,19 +54,27 @@ $flash    = get_flash();
             <option value="">-- Selecionar --</option>
             <?php foreach ($planos as $plano): ?>
                 <option value="<?= $plano['id'] ?>">
-                    <?= htmlspecialchars($plano['nome']) ?> (<?= $plano['duracao_meses'] ?> mês(es) - <?= number_format($plano['preco'], 2) ?> Kz)
+                    <?= htmlspecialchars($plano['nome']) ?> (<?= $plano['duracao_meses'] ?> mes(es) - <?= number_format($plano['preco'], 2) ?> Kz)
                 </option>
             <?php endforeach; ?>
         </select><br><br>
 
-        <label>Data de início:</label><br>
+        <label>Modalidade:</label><br>
+        <select name="modalidade_id">
+            <option value="">Sem modalidade</option>
+            <?php foreach ($modalidades as $modalidade): ?>
+                <option value="<?= $modalidade['id'] ?>"><?= htmlspecialchars($modalidade['nome']) ?></option>
+            <?php endforeach; ?>
+        </select><br><br>
+
+        <label>Data de inicio:</label><br>
         <input type="date" name="data_inicio" required><br><br>
 
-        <p><em>A data de fim é calculada automaticamente com base na duração do plano.</em></p>
+        <p><em>A data de fim e calculada automaticamente com base na duracao do plano.</em></p>
 
         <button type="submit">Guardar</button>
     </form>
 
-    <p><a href="listar.php">Voltar à lista</a></p>
+    <p><a href="listar.php">Voltar a lista</a></p>
 </body>
 </html>

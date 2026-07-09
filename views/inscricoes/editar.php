@@ -8,7 +8,7 @@ if (!is_logged_in()) {
 }
 
 $controller = new InscricaoController();
-$inscricao = $controller->obter($_GET['id']);
+$inscricao = $controller->obter($_GET['id'] ?? null);
 
 if (!$inscricao) {
     redirect('/ginasio-pw-final/views/inscricoes/listar.php');
@@ -28,16 +28,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 $clientes = $controller->listarClientes();
-$planos   = $controller->listarPlanos();
+$planos = $controller->listarPlanos();
+$modalidades = $controller->listarModalidades();
 ?>
 <!DOCTYPE html>
 <html lang="pt">
 <head>
     <meta charset="UTF-8">
-    <title>Editar Inscrição - Sistema de Ginásio</title>
+    <title>Editar Inscricao - Sistema de Ginasio</title>
 </head>
 <body>
-    <h2>Editar Inscrição</h2>
+    <h2>Editar Inscricao</h2>
 
     <form method="POST">
         <label>Cliente:</label><br>
@@ -58,7 +59,17 @@ $planos   = $controller->listarPlanos();
             <?php endforeach; ?>
         </select><br><br>
 
-        <label>Data de início:</label><br>
+        <label>Modalidade:</label><br>
+        <select name="modalidade_id">
+            <option value="">Sem modalidade</option>
+            <?php foreach ($modalidades as $modalidade): ?>
+                <option value="<?= $modalidade['id'] ?>" <?= $modalidade['id'] == $inscricao['modalidade_id'] ? 'selected' : '' ?>>
+                    <?= htmlspecialchars($modalidade['nome']) ?>
+                </option>
+            <?php endforeach; ?>
+        </select><br><br>
+
+        <label>Data de inicio:</label><br>
         <input type="date" name="data_inicio" value="<?= htmlspecialchars($inscricao['data_inicio']) ?>" required><br><br>
 
         <label>Estado:</label><br>
@@ -68,9 +79,9 @@ $planos   = $controller->listarPlanos();
             <option value="cancelada" <?= $inscricao['estado'] === 'cancelada' ? 'selected' : '' ?>>Cancelada</option>
         </select><br><br>
 
-        <button type="submit">Guardar Alterações</button>
+        <button type="submit">Guardar Alteracoes</button>
     </form>
 
-    <p><a href="listar.php">Voltar à lista</a></p>
+    <p><a href="listar.php">Voltar a lista</a></p>
 </body>
 </html>
