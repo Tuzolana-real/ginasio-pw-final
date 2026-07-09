@@ -14,7 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $lembrar = isset($_POST['lembrar']);
 
     if ($auth->login($_POST['email'], $_POST['senha'], $lembrar)) {
-        redirect('/ginasio-pw-final/index.php');
+        redirect(get_home_redirect_path($_SESSION['user_role'] ?? null));
     } else {
         redirect('/ginasio-pw-final/views/auth/login.php');
     }

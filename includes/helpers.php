@@ -75,6 +75,16 @@ function is_logged_in()
     return isset($_SESSION['user_id']);
 }
 
+/** Devolve a página inicial correta para o perfil autenticado. */
+function get_home_redirect_path($role = null)
+{
+    if ($role === PERFIL_CLIENTE) {
+        return '/ginasio-pw-final/views/auth/perfil.php';
+    }
+
+    return '/ginasio-pw-final/views/dashboard/index.php';
+}
+
 /** Gera ou devolve o token CSRF da sessão atual. */
 function csrf_token()
 {
@@ -124,7 +134,7 @@ function require_perfil($perfisPermitidos = null)
 
     if ($perfisPermitidos !== null && !in_array($_SESSION['user_role'], $perfisPermitidos)) {
         set_flash('erro', 'Não tens permissão para aceder a esta página.');
-        redirect('/ginasio-pw-final/index.php');
+        redirect(get_home_redirect_path($_SESSION['user_role'] ?? null));
     }
 }
 
