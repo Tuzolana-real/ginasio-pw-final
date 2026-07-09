@@ -83,7 +83,6 @@ class ClienteController
      */
     private function processarUpload($ficheiro)
     {
-        // Se não veio nenhum ficheiro, não é erro — cliente pode não ter foto
         if (empty($ficheiro) || $ficheiro['error'] === UPLOAD_ERR_NO_FILE) {
             return null;
         }
@@ -93,24 +92,46 @@ class ClienteController
             return false;
         }
 
+        if (!is_uploaded_file($ficheiro['tmp_name'])) {
+            set_flash('erro', 'Upload inválido.');
+            return false;
+        }
+
         $tiposPermitidos = ['image/jpeg', 'image/png'];
         $tipoReal = mime_content_type($ficheiro['tmp_name']);
-
         if (!in_array($tipoReal, $tiposPermitidos)) {
             set_flash('erro', 'A foto deve ser um ficheiro JPG ou PNG.');
             return false;
         }
 
-        $tamanhoMaximo = 2 * 1024 * 1024; // 2 MB
+        $nomeOriginal = strtolower(basename($ficheiro['name']));
+        $extensaoPermitida = pathinfo($nomeOriginal, PATHINFO_EXTENSION);
+        if (!in_array($extensaoPermitida, ['jpg', 'jpeg', 'png'])) {
+            set_flash('erro', 'A extensão do ficheiro não é válida.');
+            return false;
+        }
+
+        $tamanhoMaximo = 2 * 1024 * 1024;
         if ($ficheiro['size'] > $tamanhoMaximo) {
             set_flash('erro', 'A foto não pode exceder 2 MB.');
+            return false;
+        }
+
+        $infoImagem = getimagesize($ficheiro['tmp_name']);
+        if ($infoImagem === false) {
+            set_flash('erro', 'O ficheiro enviado não é uma imagem válida.');
             return false;
         }
 
         $extensao = $tipoReal === 'image/png' ? 'png' : 'jpg';
         $nomeFinal = uniqid('cliente_', true) . '.' . $extensao;
 
-        $destino = __DIR__ . '/../assets/uploads/' . $nomeFinal;
+        $destinoDiretorio = __DIR__ . '/../assets/uploads/';
+        if (!is_dir($destinoDiretorio)) {
+            mkdir($destinoDiretorio, 0755, true);
+        }
+
+        $destino = $destinoDiretorio . $nomeFinal;
         if (!move_uploaded_file($ficheiro['tmp_name'], $destino)) {
             set_flash('erro', 'Não foi possível guardar a foto.');
             return false;

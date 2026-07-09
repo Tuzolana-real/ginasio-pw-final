@@ -15,6 +15,8 @@ if (!$inscricao) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    require_csrf_token('/ginasio-pw-final/views/inscricoes/editar.php');
+
     $dados = [
         'cliente_id'    => $_POST['cliente_id'],
         'plano_id'      => $_POST['plano_id'],
@@ -30,58 +32,80 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $clientes = $controller->listarClientes();
 $planos = $controller->listarPlanos();
 $modalidades = $controller->listarModalidades();
+$pageTitle = 'Editar Inscrição';
+
+require_once __DIR__ . '/../partials/header.php';
+require_once __DIR__ . '/../partials/alerts.php';
 ?>
-<!DOCTYPE html>
-<html lang="pt">
-<head>
-    <meta charset="UTF-8">
-    <title>Editar Inscricao - Sistema de Ginasio</title>
-</head>
-<body>
-    <h2>Editar Inscricao</h2>
 
-    <form method="POST">
-        <label>Cliente:</label><br>
-        <select name="cliente_id" required>
-            <?php foreach ($clientes as $cliente): ?>
-                <option value="<?= $cliente['id'] ?>" <?= $cliente['id'] == $inscricao['cliente_id'] ? 'selected' : '' ?>>
-                    <?= htmlspecialchars($cliente['nome']) ?>
-                </option>
-            <?php endforeach; ?>
-        </select><br><br>
+<div class="page-grid">
+    <section class="panel">
+        <div class="actions-row" style="justify-content: space-between; align-items: center;">
+            <div>
+                <h2>Editar Inscrição</h2>
+                <p class="muted-text">Atualize os detalhes da inscrição selecionada.</p>
+            </div>
+            <a class="button secondary" href="listar.php">Voltar à lista</a>
+        </div>
 
-        <label>Plano:</label><br>
-        <select name="plano_id" required>
-            <?php foreach ($planos as $plano): ?>
-                <option value="<?= $plano['id'] ?>" <?= $plano['id'] == $inscricao['plano_id'] ? 'selected' : '' ?>>
-                    <?= htmlspecialchars($plano['nome']) ?>
-                </option>
-            <?php endforeach; ?>
-        </select><br><br>
+        <form method="POST" class="form-grid">
+            <?= csrf_field() ?>
+            <div class="form-row">
+                <div class="form-field">
+                    <label for="cliente_id">Cliente</label>
+                    <select id="cliente_id" name="cliente_id" required>
+                        <?php foreach ($clientes as $cliente): ?>
+                            <option value="<?= $cliente['id'] ?>" <?= $cliente['id'] == $inscricao['cliente_id'] ? 'selected' : '' ?>>
+                                <?= htmlspecialchars($cliente['nome']) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="form-field">
+                    <label for="plano_id">Plano</label>
+                    <select id="plano_id" name="plano_id" required>
+                        <?php foreach ($planos as $plano): ?>
+                            <option value="<?= $plano['id'] ?>" <?= $plano['id'] == $inscricao['plano_id'] ? 'selected' : '' ?>>
+                                <?= htmlspecialchars($plano['nome']) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+            </div>
 
-        <label>Modalidade:</label><br>
-        <select name="modalidade_id">
-            <option value="">Sem modalidade</option>
-            <?php foreach ($modalidades as $modalidade): ?>
-                <option value="<?= $modalidade['id'] ?>" <?= $modalidade['id'] == $inscricao['modalidade_id'] ? 'selected' : '' ?>>
-                    <?= htmlspecialchars($modalidade['nome']) ?>
-                </option>
-            <?php endforeach; ?>
-        </select><br><br>
+            <div class="form-row">
+                <div class="form-field">
+                    <label for="modalidade_id">Modalidade</label>
+                    <select id="modalidade_id" name="modalidade_id">
+                        <option value="">Sem modalidade</option>
+                        <?php foreach ($modalidades as $modalidade): ?>
+                            <option value="<?= $modalidade['id'] ?>" <?= $modalidade['id'] == $inscricao['modalidade_id'] ? 'selected' : '' ?>>
+                                <?= htmlspecialchars($modalidade['nome']) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="form-field">
+                    <label for="data_inicio">Data de início</label>
+                    <input type="date" id="data_inicio" name="data_inicio" value="<?= htmlspecialchars($inscricao['data_inicio']) ?>" required>
+                </div>
+            </div>
 
-        <label>Data de inicio:</label><br>
-        <input type="date" name="data_inicio" value="<?= htmlspecialchars($inscricao['data_inicio']) ?>" required><br><br>
+            <div class="form-field">
+                <label for="estado">Estado</label>
+                <select id="estado" name="estado">
+                    <option value="ativa" <?= $inscricao['estado'] === 'ativa' ? 'selected' : '' ?>>Ativa</option>
+                    <option value="expirada" <?= $inscricao['estado'] === 'expirada' ? 'selected' : '' ?>>Expirada</option>
+                    <option value="cancelada" <?= $inscricao['estado'] === 'cancelada' ? 'selected' : '' ?>>Cancelada</option>
+                </select>
+            </div>
 
-        <label>Estado:</label><br>
-        <select name="estado">
-            <option value="ativa" <?= $inscricao['estado'] === 'ativa' ? 'selected' : '' ?>>Ativa</option>
-            <option value="expirada" <?= $inscricao['estado'] === 'expirada' ? 'selected' : '' ?>>Expirada</option>
-            <option value="cancelada" <?= $inscricao['estado'] === 'cancelada' ? 'selected' : '' ?>>Cancelada</option>
-        </select><br><br>
+            <div class="form-actions">
+                <button class="button" type="submit">Guardar Alterações</button>
+                <a class="button secondary" href="listar.php">Cancelar</a>
+            </div>
+        </form>
+    </section>
+</div>
 
-        <button type="submit">Guardar Alteracoes</button>
-    </form>
-
-    <p><a href="listar.php">Voltar a lista</a></p>
-</body>
-</html>
+<?php require_once __DIR__ . '/../partials/footer.php'; ?>

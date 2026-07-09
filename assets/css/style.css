@@ -224,6 +224,16 @@ a:hover {
     text-decoration: none;
 }
 
+.button.secondary {
+    background: #e2e8f0;
+    color: var(--text);
+}
+
+.button.secondary:hover {
+    background: #cbd5e1;
+    color: var(--text);
+}
+
 .table-wrap {
     width: 100%;
     overflow-x: auto;
@@ -249,6 +259,62 @@ a:hover {
     font-weight: 700;
 }
 
+.form-grid {
+    display: grid;
+    gap: 14px;
+    max-width: 840px;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.form-field {
+    display: grid;
+    gap: 6px;
+}
+
+.form-field label {
+    font-weight: 700;
+}
+
+.form-field input,
+.form-field select,
+.form-field textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: #ffffff;
+    color: var(--text);
+}
+
+.filter-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: end;
+    margin: 16px 0 10px;
+}
+
+.filter-form .form-field {
+    min-width: 240px;
+}
+
+.form-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 8px;
+}
+
+.muted-text {
+    margin: 4px 0 0;
+    color: var(--muted);
+}
+
 .badge {
     display: inline-flex;
     align-items: center;
@@ -258,6 +324,30 @@ a:hover {
     color: var(--primary-dark);
     font-size: 12px;
     font-weight: 700;
+}
+
+.auth-shell {
+    min-height: calc(100vh - 120px);
+    display: grid;
+    place-items: center;
+    padding: 24px 0;
+}
+
+.auth-card {
+    width: min(100%, 480px);
+    padding: 24px;
+}
+
+.auth-card h2 {
+    margin-top: 0;
+}
+
+.auth-link-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 14px;
+    gap: 12px;
 }
 
 .alert {
@@ -286,7 +376,8 @@ a:hover {
 
 @media (max-width: 1000px) {
     .stats-grid,
-    .panel-grid {
+    .panel-grid,
+    .form-row {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 }
@@ -328,7 +419,8 @@ a:hover {
     }
 
     .stats-grid,
-    .panel-grid {
+    .panel-grid,
+    .form-row {
         grid-template-columns: 1fr;
     }
 }

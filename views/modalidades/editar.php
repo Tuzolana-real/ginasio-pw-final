@@ -13,6 +13,8 @@ if (!$modalidade) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    require_csrf_token('/ginasio-pw-final/views/modalidades/editar.php');
+
     $dados = [
         'nome'      => $_POST['nome'],
         'descricao' => $_POST['descricao'],
@@ -24,35 +26,58 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $controller->atualizar($modalidade['id'], $dados);
     redirect('/ginasio-pw-final/views/modalidades/listar.php');
 }
+
+$pageTitle = 'Editar Modalidade';
+
+require_once __DIR__ . '/../partials/header.php';
+require_once __DIR__ . '/../partials/alerts.php';
 ?>
-<!DOCTYPE html>
-<html lang="pt">
-<head>
-    <meta charset="UTF-8">
-    <title>Editar Modalidade - Sistema de Ginasio</title>
-</head>
-<body>
-    <h2>Editar Modalidade</h2>
 
-    <form method="POST">
-        <label>Nome:</label><br>
-        <input type="text" name="nome" value="<?= htmlspecialchars($modalidade['nome']) ?>" required><br><br>
+<div class="page-grid">
+    <section class="panel">
+        <div class="actions-row" style="justify-content: space-between; align-items: center;">
+            <div>
+                <h2>Editar Modalidade</h2>
+                <p class="muted-text">Atualize a modalidade selecionada.</p>
+            </div>
+            <a class="button secondary" href="listar.php">Voltar à lista</a>
+        </div>
 
-        <label>Categoria:</label><br>
-        <input type="text" name="categoria" value="<?= htmlspecialchars($modalidade['categoria'] ?? '') ?>"><br><br>
+        <form method="POST" class="form-grid">
+            <?= csrf_field() ?>
+            <div class="form-row">
+                <div class="form-field">
+                    <label for="nome">Nome</label>
+                    <input type="text" id="nome" name="nome" value="<?= htmlspecialchars($modalidade['nome']) ?>" required>
+                </div>
+                <div class="form-field">
+                    <label for="categoria">Categoria</label>
+                    <input type="text" id="categoria" name="categoria" value="<?= htmlspecialchars($modalidade['categoria'] ?? '') ?>">
+                </div>
+            </div>
 
-        <label>Instrutor:</label><br>
-        <input type="text" name="instrutor" value="<?= htmlspecialchars($modalidade['instrutor'] ?? '') ?>"><br><br>
+            <div class="form-row">
+                <div class="form-field">
+                    <label for="instrutor">Instrutor</label>
+                    <input type="text" id="instrutor" name="instrutor" value="<?= htmlspecialchars($modalidade['instrutor'] ?? '') ?>">
+                </div>
+                <div class="form-field">
+                    <label for="vagas">Vagas</label>
+                    <input type="number" id="vagas" name="vagas" min="0" value="<?= htmlspecialchars($modalidade['vagas'] ?? '0') ?>">
+                </div>
+            </div>
 
-        <label>Vagas:</label><br>
-        <input type="number" name="vagas" min="0" value="<?= htmlspecialchars($modalidade['vagas'] ?? '0') ?>"><br><br>
+            <div class="form-field">
+                <label for="descricao">Descrição</label>
+                <textarea id="descricao" name="descricao" rows="4"><?= htmlspecialchars($modalidade['descricao'] ?? '') ?></textarea>
+            </div>
 
-        <label>Descricao:</label><br>
-        <textarea name="descricao" rows="4" cols="40"><?= htmlspecialchars($modalidade['descricao'] ?? '') ?></textarea><br><br>
+            <div class="form-actions">
+                <button class="button" type="submit">Guardar Alterações</button>
+                <a class="button secondary" href="listar.php">Cancelar</a>
+            </div>
+        </form>
+    </section>
+</div>
 
-        <button type="submit">Guardar Alteracoes</button>
-    </form>
-
-    <p><a href="listar.php">Voltar a lista</a></p>
-</body>
-</html>
+<?php require_once __DIR__ . '/../partials/footer.php'; ?>

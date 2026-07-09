@@ -13,6 +13,8 @@ if (!$plano) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    require_csrf_token('/ginasio-pw-final/views/planos/editar.php');
+
     $dados = [
         'codigo'        => $_POST['codigo'],
         'nome'          => $_POST['nome'],
@@ -24,35 +26,58 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $controller->atualizar($plano['id'], $dados);
     redirect('/ginasio-pw-final/views/planos/listar.php');
 }
+
+$pageTitle = 'Editar Plano';
+
+require_once __DIR__ . '/../partials/header.php';
+require_once __DIR__ . '/../partials/alerts.php';
 ?>
-<!DOCTYPE html>
-<html lang="pt">
-<head>
-    <meta charset="UTF-8">
-    <title>Editar Plano - Sistema de Ginasio</title>
-</head>
-<body>
-    <h2>Editar Plano</h2>
 
-    <form method="POST">
-        <label>Codigo:</label><br>
-        <input type="text" name="codigo" value="<?= htmlspecialchars($plano['codigo']) ?>" required><br><br>
+<div class="page-grid">
+    <section class="panel">
+        <div class="actions-row" style="justify-content: space-between; align-items: center;">
+            <div>
+                <h2>Editar Plano</h2>
+                <p class="muted-text">Atualize os dados do plano selecionado.</p>
+            </div>
+            <a class="button secondary" href="listar.php">Voltar à lista</a>
+        </div>
 
-        <label>Nome:</label><br>
-        <input type="text" name="nome" value="<?= htmlspecialchars($plano['nome']) ?>" required><br><br>
+        <form method="POST" class="form-grid">
+            <?= csrf_field() ?>
+            <div class="form-row">
+                <div class="form-field">
+                    <label for="codigo">Código</label>
+                    <input type="text" id="codigo" name="codigo" value="<?= htmlspecialchars($plano['codigo']) ?>" required>
+                </div>
+                <div class="form-field">
+                    <label for="nome">Nome</label>
+                    <input type="text" id="nome" name="nome" value="<?= htmlspecialchars($plano['nome']) ?>" required>
+                </div>
+            </div>
 
-        <label>Preco (Kz):</label><br>
-        <input type="number" step="0.01" name="preco" value="<?= htmlspecialchars($plano['preco']) ?>" required><br><br>
+            <div class="form-row">
+                <div class="form-field">
+                    <label for="preco">Preço (Kz)</label>
+                    <input type="number" id="preco" step="0.01" name="preco" value="<?= htmlspecialchars($plano['preco']) ?>" required>
+                </div>
+                <div class="form-field">
+                    <label for="duracao_meses">Duração em meses</label>
+                    <input type="number" id="duracao_meses" name="duracao_meses" min="1" value="<?= htmlspecialchars($plano['duracao_meses']) ?>" required>
+                </div>
+            </div>
 
-        <label>Duracao em meses:</label><br>
-        <input type="number" name="duracao_meses" min="1" value="<?= htmlspecialchars($plano['duracao_meses']) ?>" required><br><br>
+            <div class="form-field">
+                <label for="descricao">Descrição</label>
+                <textarea id="descricao" name="descricao" rows="4"><?= htmlspecialchars($plano['descricao'] ?? '') ?></textarea>
+            </div>
 
-        <label>Descricao:</label><br>
-        <textarea name="descricao" rows="4" cols="40"><?= htmlspecialchars($plano['descricao'] ?? '') ?></textarea><br><br>
+            <div class="form-actions">
+                <button class="button" type="submit">Guardar Alterações</button>
+                <a class="button secondary" href="listar.php">Cancelar</a>
+            </div>
+        </form>
+    </section>
+</div>
 
-        <button type="submit">Guardar Alteracoes</button>
-    </form>
-
-    <p><a href="listar.php">Voltar a lista</a></p>
-</body>
-</html>
+<?php require_once __DIR__ . '/../partials/footer.php'; ?>

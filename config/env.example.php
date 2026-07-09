@@ -3,9 +3,12 @@
 // se necessário. env.php NÃO vai para o Git (está no .gitignore).
 
 return [
-    'DB_HOST'    => '127.0.0.1',
-    'DB_NAME'    => 'ginasio_db',
-    'DB_USER'    => 'root',
-    'DB_PASS'    => '',
-    'DB_CHARSET' => 'utf8mb4',
+    'DB_HOST'        => '127.0.0.1',
+    'DB_NAME'        => 'ginasio_db',
+    'DB_USER'        => 'root',
+    'DB_PASS'        => '',
+    'DB_CHARSET'     => 'utf8mb4',
+    'APP_URL'        => 'http://localhost/ginasio-pw-final',
+    'MAIL_FROM'      => 'no-reply@ginasio.local',
+    'MAIL_FROM_NAME' => 'Sistema de Ginásio',
 ];

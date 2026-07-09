@@ -8,6 +8,8 @@ if (!is_logged_in()) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    require_csrf_token('/ginasio-pw-final/views/clientes/criar.php');
+
     $controller = new ClienteController();
 
     $dados = [
@@ -25,51 +27,76 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 $flash = get_flash();
+$pageTitle = 'Novo Cliente';
+
+require_once __DIR__ . '/../partials/header.php';
+require_once __DIR__ . '/../partials/alerts.php';
 ?>
-<!DOCTYPE html>
-<html lang="pt">
-<head>
-    <meta charset="UTF-8">
-    <title>Novo Cliente - Sistema de Ginásio</title>
-</head>
-<body>
-    <h2>Novo Cliente</h2>
 
-    <?php if ($flash): ?>
-        <p style="color: red"><?= htmlspecialchars($flash['message']) ?></p>
-    <?php endif; ?>
+<div class="page-grid">
+    <section class="panel">
+        <div class="actions-row" style="justify-content: space-between; align-items: center;">
+            <div>
+                <h2>Novo Cliente</h2>
+                <p class="muted-text">Registe um novo cliente no sistema.</p>
+            </div>
+            <a class="button secondary" href="listar.php">Voltar à lista</a>
+        </div>
 
-    <form method="POST" enctype="multipart/form-data">
-        <label>Nome:</label><br>
-        <input type="text" name="nome" required><br><br>
+        <form method="POST" enctype="multipart/form-data" class="form-grid">
+            <?= csrf_field() ?>
+            <div class="form-row">
+                <div class="form-field">
+                    <label for="nome">Nome</label>
+                    <input type="text" id="nome" name="nome" required>
+                </div>
+                <div class="form-field">
+                    <label for="bi">BI</label>
+                    <input type="text" id="bi" name="bi">
+                </div>
+            </div>
 
-        <label>BI:</label><br>
-        <input type="text" name="bi"><br><br>
+            <div class="form-row">
+                <div class="form-field">
+                    <label for="data_nascimento">Data de nascimento</label>
+                    <input type="date" id="data_nascimento" name="data_nascimento">
+                </div>
+                <div class="form-field">
+                    <label for="genero">Género</label>
+                    <select id="genero" name="genero">
+                        <option value="M">Masculino</option>
+                        <option value="F">Feminino</option>
+                    </select>
+                </div>
+            </div>
 
-        <label>Data de nascimento:</label><br>
-        <input type="date" name="data_nascimento"><br><br>
+            <div class="form-row">
+                <div class="form-field">
+                    <label for="telefone">Telefone</label>
+                    <input type="text" id="telefone" name="telefone">
+                </div>
+                <div class="form-field">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email">
+                </div>
+            </div>
 
-        <label>Género:</label><br>
-        <select name="genero">
-            <option value="M">Masculino</option>
-            <option value="F">Feminino</option>
-        </select><br><br>
+            <div class="form-field">
+                <label for="endereco">Endereço</label>
+                <input type="text" id="endereco" name="endereco">
+            </div>
 
-        <label>Telefone:</label><br>
-        <input type="text" name="telefone"><br><br>
+            <div class="form-field">
+                <label for="foto">Foto</label>
+                <input type="file" id="foto" name="foto" accept="image/jpeg,image/png">
+            </div>
 
-        <label>Email:</label><br>
-        <input type="email" name="email"><br><br>
+            <div class="form-actions">
+                <button class="button" type="submit">Guardar</button>
+                <a class="button secondary" href="listar.php">Cancelar</a>
+            </div>
+        </form>
+    </section>
+</div>
 
-        <label>Endereço:</label><br>
-        <input type="text" name="endereco"><br><br>
-
-        <label>Foto:</label><br>
-        <input type="file" name="foto" accept="image/jpeg,image/png"><br><br>
-
-        <button type="submit">Guardar</button>
-    </form>
-
-    <p><a href="listar.php">Voltar à lista</a></p>
-</body>
-</html>
+<?php require_once __DIR__ . '/../partials/footer.php'; ?>

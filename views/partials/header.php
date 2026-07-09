@@ -1,6 +1,8 @@
 <?php
 $pageTitle = $pageTitle ?? 'Sistema de Gestao de Ginasio';
 $baseUrl = '/ginasio-pw-final';
+$showSidebar = $showSidebar ?? true;
+$showTopbarActions = $showTopbarActions ?? true;
 ?>
 <!DOCTYPE html>
 <html lang="pt">
@@ -12,19 +14,25 @@ $baseUrl = '/ginasio-pw-final';
 </head>
 <body>
 <div class="app-shell">
-    <?php require __DIR__ . '/sidebar.php'; ?>
+    <?php if ($showSidebar): ?>
+        <?php require __DIR__ . '/sidebar.php'; ?>
+    <?php endif; ?>
 
     <div class="app-main">
         <header class="topbar">
-            <button class="menu-toggle" type="button" data-sidebar-toggle aria-label="Abrir menu">Menu</button>
+            <?php if ($showSidebar): ?>
+                <button class="menu-toggle" type="button" data-sidebar-toggle aria-label="Abrir menu">Menu</button>
+            <?php endif; ?>
             <div>
                 <h1><?= htmlspecialchars($pageTitle) ?></h1>
                 <p><?= htmlspecialchars($_SESSION['user_nome'] ?? 'Visitante') ?></p>
             </div>
-            <div class="topbar-actions">
-                <a href="<?= $baseUrl ?>/views/auth/perfil.php">Perfil</a>
-                <a href="<?= $baseUrl ?>/views/auth/logout.php">Sair</a>
-            </div>
+            <?php if ($showTopbarActions): ?>
+                <div class="topbar-actions">
+                    <a href="<?= $baseUrl ?>/views/auth/perfil.php">Perfil</a>
+                    <a href="<?= $baseUrl ?>/views/auth/logout.php">Sair</a>
+                </div>
+            <?php endif; ?>
         </header>
 
         <main class="content">

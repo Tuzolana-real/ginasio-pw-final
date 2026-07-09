@@ -15,6 +15,8 @@ CREATE TABLE utilizadores (
   senha VARCHAR(255) NOT NULL,
   perfil_id INT NOT NULL,
   ativo TINYINT(1) DEFAULT 1,
+  reset_token VARCHAR(64) NULL,
+  reset_token_expira_em DATETIME NULL,
   criado_em DATETIME DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (perfil_id) REFERENCES perfis(id)
 );

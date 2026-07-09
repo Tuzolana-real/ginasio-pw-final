@@ -14,51 +14,60 @@ if (!empty($_GET['pesquisa'])) {
 }
 
 $flash = get_flash();
+$pageTitle = 'Modalidades';
+
+require_once __DIR__ . '/../partials/header.php';
+require_once __DIR__ . '/../partials/alerts.php';
 ?>
-<!DOCTYPE html>
-<html lang="pt">
-<head>
-    <meta charset="UTF-8">
-    <title>Modalidades - Sistema de Ginasio</title>
-</head>
-<body>
-    <h2>Modalidades</h2>
 
-    <?php if ($flash): ?>
-        <p style="color: <?= $flash['type'] === 'erro' ? 'red' : 'green' ?>">
-            <?= htmlspecialchars($flash['message']) ?>
-        </p>
-    <?php endif; ?>
+<div class="page-grid">
+    <section class="panel">
+        <div class="actions-row" style="justify-content: space-between; align-items: center;">
+            <div>
+                <h2>Modalidades</h2>
+                <p class="muted-text">Gerir as modalidades e a sua capacidade.</p>
+            </div>
+            <a class="button" href="criar.php">+ Nova Modalidade</a>
+        </div>
 
-    <p><a href="criar.php">+ Nova Modalidade</a></p>
+        <form method="GET" class="filter-form">
+            <div class="form-field">
+                <label for="pesquisa">Pesquisar por categoria</label>
+                <input type="text" id="pesquisa" name="pesquisa" placeholder="Pesquisar por categoria..." value="<?= htmlspecialchars($_GET['pesquisa'] ?? '') ?>">
+            </div>
+            <button class="button" type="submit">Pesquisar</button>
+        </form>
 
-    <form method="GET">
-        <input type="text" name="pesquisa" placeholder="Pesquisar por categoria..." value="<?= htmlspecialchars($_GET['pesquisa'] ?? '') ?>">
-        <button type="submit">Pesquisar</button>
-    </form>
+        <div class="table-wrap">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>Categoria</th>
+                        <th>Instrutor</th>
+                        <th>Vagas</th>
+                        <th>Descrição</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($modalidades as $modalidade): ?>
+                    <tr>
+                        <td><?= htmlspecialchars($modalidade['nome']) ?></td>
+                        <td><?= htmlspecialchars($modalidade['categoria'] ?? '') ?></td>
+                        <td><?= htmlspecialchars($modalidade['instrutor'] ?? '') ?></td>
+                        <td><?= htmlspecialchars($modalidade['vagas'] ?? '0') ?></td>
+                        <td><?= htmlspecialchars($modalidade['descricao'] ?? '') ?></td>
+                        <td>
+                            <a href="editar.php?id=<?= $modalidade['id'] ?>">Editar</a> |
+                            <a href="eliminar.php?id=<?= $modalidade['id'] ?>" onclick="return confirm('Tens a certeza que queres eliminar esta modalidade?')">Eliminar</a>
+                        </td>
+                    </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</div>
 
-    <table border="1" cellpadding="8">
-        <tr>
-            <th>Nome</th>
-            <th>Categoria</th>
-            <th>Instrutor</th>
-            <th>Vagas</th>
-            <th>Descricao</th>
-            <th>Acoes</th>
-        </tr>
-        <?php foreach ($modalidades as $modalidade): ?>
-        <tr>
-            <td><?= htmlspecialchars($modalidade['nome']) ?></td>
-            <td><?= htmlspecialchars($modalidade['categoria'] ?? '') ?></td>
-            <td><?= htmlspecialchars($modalidade['instrutor'] ?? '') ?></td>
-            <td><?= htmlspecialchars($modalidade['vagas'] ?? '0') ?></td>
-            <td><?= htmlspecialchars($modalidade['descricao'] ?? '') ?></td>
-            <td>
-                <a href="editar.php?id=<?= $modalidade['id'] ?>">Editar</a> |
-                <a href="eliminar.php?id=<?= $modalidade['id'] ?>" onclick="return confirm('Tens a certeza que queres eliminar esta modalidade?')">Eliminar</a>
-            </td>
-        </tr>
-        <?php endforeach; ?>
-    </table>
-</body>
-</html>
+<?php require_once __DIR__ . '/../partials/footer.php'; ?>

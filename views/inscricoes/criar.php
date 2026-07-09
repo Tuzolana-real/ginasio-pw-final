@@ -10,6 +10,8 @@ if (!is_logged_in()) {
 $controller = new InscricaoController();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    require_csrf_token('/ginasio-pw-final/views/inscricoes/criar.php');
+
     $dados = [
         'cliente_id'    => $_POST['cliente_id'],
         'plano_id'      => $_POST['plano_id'],
@@ -26,55 +28,71 @@ $clientes = $controller->listarClientes();
 $planos = $controller->listarPlanos();
 $modalidades = $controller->listarModalidades();
 $flash = get_flash();
+$pageTitle = 'Nova Inscrição';
+
+require_once __DIR__ . '/../partials/header.php';
+require_once __DIR__ . '/../partials/alerts.php';
 ?>
-<!DOCTYPE html>
-<html lang="pt">
-<head>
-    <meta charset="UTF-8">
-    <title>Nova Inscricao - Sistema de Ginasio</title>
-</head>
-<body>
-    <h2>Nova Inscricao</h2>
 
-    <?php if ($flash): ?>
-        <p style="color: red"><?= htmlspecialchars($flash['message']) ?></p>
-    <?php endif; ?>
+<div class="page-grid">
+    <section class="panel">
+        <div class="actions-row" style="justify-content: space-between; align-items: center;">
+            <div>
+                <h2>Nova Inscrição</h2>
+                <p class="muted-text">Crie uma nova inscrição para um cliente.</p>
+            </div>
+            <a class="button secondary" href="listar.php">Voltar à lista</a>
+        </div>
 
-    <form method="POST">
-        <label>Cliente:</label><br>
-        <select name="cliente_id" required>
-            <option value="">-- Selecionar --</option>
-            <?php foreach ($clientes as $cliente): ?>
-                <option value="<?= $cliente['id'] ?>"><?= htmlspecialchars($cliente['nome']) ?></option>
-            <?php endforeach; ?>
-        </select><br><br>
+        <form method="POST" class="form-grid">
+            <?= csrf_field() ?>
+            <div class="form-row">
+                <div class="form-field">
+                    <label for="cliente_id">Cliente</label>
+                    <select id="cliente_id" name="cliente_id" required>
+                        <option value="">-- Selecionar --</option>
+                        <?php foreach ($clientes as $cliente): ?>
+                            <option value="<?= $cliente['id'] ?>"><?= htmlspecialchars($cliente['nome']) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="form-field">
+                    <label for="plano_id">Plano</label>
+                    <select id="plano_id" name="plano_id" required>
+                        <option value="">-- Selecionar --</option>
+                        <?php foreach ($planos as $plano): ?>
+                            <option value="<?= $plano['id'] ?>">
+                                <?= htmlspecialchars($plano['nome']) ?> (<?= $plano['duracao_meses'] ?> mes(es) - <?= number_format($plano['preco'], 2) ?> Kz)
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+            </div>
 
-        <label>Plano:</label><br>
-        <select name="plano_id" required>
-            <option value="">-- Selecionar --</option>
-            <?php foreach ($planos as $plano): ?>
-                <option value="<?= $plano['id'] ?>">
-                    <?= htmlspecialchars($plano['nome']) ?> (<?= $plano['duracao_meses'] ?> mes(es) - <?= number_format($plano['preco'], 2) ?> Kz)
-                </option>
-            <?php endforeach; ?>
-        </select><br><br>
+            <div class="form-row">
+                <div class="form-field">
+                    <label for="modalidade_id">Modalidade</label>
+                    <select id="modalidade_id" name="modalidade_id">
+                        <option value="">Sem modalidade</option>
+                        <?php foreach ($modalidades as $modalidade): ?>
+                            <option value="<?= $modalidade['id'] ?>"><?= htmlspecialchars($modalidade['nome']) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="form-field">
+                    <label for="data_inicio">Data de início</label>
+                    <input type="date" id="data_inicio" name="data_inicio" required>
+                </div>
+            </div>
 
-        <label>Modalidade:</label><br>
-        <select name="modalidade_id">
-            <option value="">Sem modalidade</option>
-            <?php foreach ($modalidades as $modalidade): ?>
-                <option value="<?= $modalidade['id'] ?>"><?= htmlspecialchars($modalidade['nome']) ?></option>
-            <?php endforeach; ?>
-        </select><br><br>
+            <p class="muted-text"><em>A data de fim é calculada automaticamente com base na duração do plano.</em></p>
 
-        <label>Data de inicio:</label><br>
-        <input type="date" name="data_inicio" required><br><br>
+            <div class="form-actions">
+                <button class="button" type="submit">Guardar</button>
+                <a class="button secondary" href="listar.php">Cancelar</a>
+            </div>
+        </form>
+    </section>
+</div>
 
-        <p><em>A data de fim e calculada automaticamente com base na duracao do plano.</em></p>
-
-        <button type="submit">Guardar</button>
-    </form>
-
-    <p><a href="listar.php">Voltar a lista</a></p>
-</body>
-</html>
+<?php require_once __DIR__ . '/../partials/footer.php'; ?>

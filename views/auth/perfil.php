@@ -3,13 +3,13 @@ session_start();
 require_once __DIR__ . '/../../includes/helpers.php';
 require_once __DIR__ . '/../../models/Utilizador.php';
 
-if (!is_logged_in()) {
-    redirect('/ginasio-pw-final/views/auth/login.php');
-}
+require_perfil([PERFIL_ADMIN, PERFIL_RECEPCIONISTA, PERFIL_CLIENTE]);
 
 $utilizadorModel = new Utilizador();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    require_csrf_token('/ginasio-pw-final/views/auth/perfil.php');
+
     $nome  = sanitize_input($_POST['nome']);
     $email = sanitize_input($_POST['email']);
 
@@ -26,32 +26,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 $utilizador = $utilizadorModel->findById($_SESSION['user_id']);
 $flash = get_flash();
+$pageTitle = 'Meu Perfil';
+$showSidebar = true;
+$showTopbarActions = true;
+
+require_once __DIR__ . '/../partials/header.php';
+require_once __DIR__ . '/../partials/alerts.php';
 ?>
-<!DOCTYPE html>
-<html lang="pt">
-<head>
-    <meta charset="UTF-8">
-    <title>Meu Perfil - Sistema de Ginásio</title>
-</head>
-<body>
-    <h2>Meu Perfil</h2>
 
-    <?php if ($flash): ?>
-        <p style="color: <?= $flash['type'] === 'erro' ? 'red' : 'green' ?>">
-            <?= htmlspecialchars($flash['message']) ?>
-        </p>
-    <?php endif; ?>
+<div class="auth-shell">
+    <section class="panel auth-card">
+        <h2>Meu Perfil</h2>
+        <p class="muted-text">Atualize os dados da sua conta.</p>
 
-    <form method="POST">
-        <label>Nome:</label><br>
-        <input type="text" name="nome" value="<?= htmlspecialchars($utilizador['nome']) ?>" required><br><br>
+        <form method="POST" class="form-grid">
+            <?= csrf_field() ?>
+            <div class="form-field">
+                <label for="nome">Nome</label>
+                <input type="text" id="nome" name="nome" value="<?= htmlspecialchars($utilizador['nome']) ?>" required>
+            </div>
 
-        <label>Email:</label><br>
-        <input type="email" name="email" value="<?= htmlspecialchars($utilizador['email']) ?>" required><br><br>
+            <div class="form-field">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" value="<?= htmlspecialchars($utilizador['email']) ?>" required>
+            </div>
 
-        <button type="submit">Guardar Alterações</button>
-    </form>
+            <div class="form-actions">
+                <button class="button" type="submit">Guardar Alterações</button>
+                <a class="button secondary" href="alterar-senha.php">Trocar senha</a>
+            </div>
+        </form>
+    </section>
+</div>
 
-    <p><a href="alterar-senha.php">Trocar senha</a></p>
-</body>
-</html>
+<?php require_once __DIR__ . '/../partials/footer.php'; ?>

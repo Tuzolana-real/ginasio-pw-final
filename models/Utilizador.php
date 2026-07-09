@@ -14,6 +14,28 @@ class Utilizador extends Model
         return $stmt->fetch();
     }
 
+    /** Procura um utilizador por token de recuperação válido. */
+    public function findByResetToken($token)
+    {
+        $stmt = $this->db->prepare("SELECT * FROM utilizadores WHERE reset_token = :token AND reset_token_expira_em > NOW()");
+        $stmt->execute(['token' => $token]);
+        return $stmt->fetch();
+    }
+
+    /** Guarda o token de recuperação de senha para um utilizador. */
+    public function setResetToken($id, $token, $expiraEm)
+    {
+        $stmt = $this->db->prepare("UPDATE utilizadores SET reset_token = :token, reset_token_expira_em = :expira_em WHERE id = :id");
+        return $stmt->execute(['token' => $token, 'expira_em' => $expiraEm, 'id' => $id]);
+    }
+
+    /** Limpa o token de recuperação de senha após a redefinição. */
+    public function clearResetToken($id)
+    {
+        $stmt = $this->db->prepare("UPDATE utilizadores SET reset_token = NULL, reset_token_expira_em = NULL WHERE id = :id");
+        return $stmt->execute(['id' => $id]);
+    }
+
     /** Atualiza apenas a senha (já em hash) de um utilizador. */
     public function updateSenha($id, $novaSenhaHash)
     {

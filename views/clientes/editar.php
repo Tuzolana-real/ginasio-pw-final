@@ -15,6 +15,8 @@ if (!$cliente) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    require_csrf_token('/ginasio-pw-final/views/clientes/editar.php');
+
     $dados = [
         'nome'            => $_POST['nome'],
         'bi'              => $_POST['bi'],
@@ -29,58 +31,93 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $controller->atualizar($cliente['id'], $dados, $_FILES['foto'] ?? null);
     redirect('/ginasio-pw-final/views/clientes/listar.php');
 }
+
+$pageTitle = 'Editar Cliente';
+
+require_once __DIR__ . '/../partials/header.php';
+require_once __DIR__ . '/../partials/alerts.php';
 ?>
-<!DOCTYPE html>
-<html lang="pt">
-<head>
-    <meta charset="UTF-8">
-    <title>Editar Cliente - Sistema de Ginásio</title>
-</head>
-<body>
-    <h2>Editar Cliente</h2>
 
-    <form method="POST" enctype="multipart/form-data">
-        <label>Nome:</label><br>
-        <input type="text" name="nome" value="<?= htmlspecialchars($cliente['nome']) ?>" required><br><br>
+<div class="page-grid">
+    <section class="panel">
+        <div class="actions-row" style="justify-content: space-between; align-items: center;">
+            <div>
+                <h2>Editar Cliente</h2>
+                <p class="muted-text">Atualize os dados do cliente selecionado.</p>
+            </div>
+            <a class="button secondary" href="listar.php">Voltar à lista</a>
+        </div>
 
-        <label>BI:</label><br>
-        <input type="text" name="bi" value="<?= htmlspecialchars($cliente['bi'] ?? '') ?>"><br><br>
+        <form method="POST" enctype="multipart/form-data" class="form-grid">
+            <?= csrf_field() ?>
+            <div class="form-row">
+                <div class="form-field">
+                    <label for="nome">Nome</label>
+                    <input type="text" id="nome" name="nome" value="<?= htmlspecialchars($cliente['nome']) ?>" required>
+                </div>
+                <div class="form-field">
+                    <label for="bi">BI</label>
+                    <input type="text" id="bi" name="bi" value="<?= htmlspecialchars($cliente['bi'] ?? '') ?>">
+                </div>
+            </div>
 
-        <label>Data de nascimento:</label><br>
-        <input type="date" name="data_nascimento" value="<?= htmlspecialchars($cliente['data_nascimento'] ?? '') ?>"><br><br>
+            <div class="form-row">
+                <div class="form-field">
+                    <label for="data_nascimento">Data de nascimento</label>
+                    <input type="date" id="data_nascimento" name="data_nascimento" value="<?= htmlspecialchars($cliente['data_nascimento'] ?? '') ?>">
+                </div>
+                <div class="form-field">
+                    <label for="genero">Género</label>
+                    <select id="genero" name="genero">
+                        <option value="M" <?= $cliente['genero'] === 'M' ? 'selected' : '' ?>>Masculino</option>
+                        <option value="F" <?= $cliente['genero'] === 'F' ? 'selected' : '' ?>>Feminino</option>
+                        <option value="Outro" <?= $cliente['genero'] === 'Outro' ? 'selected' : '' ?>>Outro</option>
+                    </select>
+                </div>
+            </div>
 
-        <label>Género:</label><br>
-        <select name="genero">
-            <option value="M" <?= $cliente['genero'] === 'M' ? 'selected' : '' ?>>Masculino</option>
-            <option value="F" <?= $cliente['genero'] === 'F' ? 'selected' : '' ?>>Feminino</option>
-            <option value="Outro" <?= $cliente['genero'] === 'Outro' ? 'selected' : '' ?>>Outro</option>
-        </select><br><br>
+            <div class="form-row">
+                <div class="form-field">
+                    <label for="telefone">Telefone</label>
+                    <input type="text" id="telefone" name="telefone" value="<?= htmlspecialchars($cliente['telefone'] ?? '') ?>">
+                </div>
+                <div class="form-field">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" value="<?= htmlspecialchars($cliente['email'] ?? '') ?>">
+                </div>
+            </div>
 
-        <label>Telefone:</label><br>
-        <input type="text" name="telefone" value="<?= htmlspecialchars($cliente['telefone'] ?? '') ?>"><br><br>
+            <div class="form-field">
+                <label for="endereco">Endereço</label>
+                <input type="text" id="endereco" name="endereco" value="<?= htmlspecialchars($cliente['endereco'] ?? '') ?>">
+            </div>
 
-        <label>Email:</label><br>
-        <input type="email" name="email" value="<?= htmlspecialchars($cliente['email'] ?? '') ?>"><br><br>
+            <div class="form-field">
+                <label for="estado">Estado</label>
+                <select id="estado" name="estado">
+                    <option value="ativo" <?= $cliente['estado'] === 'ativo' ? 'selected' : '' ?>>Ativo</option>
+                    <option value="inativo" <?= $cliente['estado'] === 'inativo' ? 'selected' : '' ?>>Inativo</option>
+                </select>
+            </div>
 
-        <label>Endereço:</label><br>
-        <input type="text" name="endereco" value="<?= htmlspecialchars($cliente['endereco'] ?? '') ?>"><br><br>
+            <div class="form-field">
+                <label>Foto atual</label>
+                <?php if (!empty($cliente['foto'])): ?>
+                    <img src="/ginasio-pw-final/assets/uploads/<?= htmlspecialchars($cliente['foto']) ?>" width="80" alt="Foto atual">
+                <?php endif; ?>
+            </div>
 
-        <label>Estado:</label><br>
-        <select name="estado">
-            <option value="ativo" <?= $cliente['estado'] === 'ativo' ? 'selected' : '' ?>>Ativo</option>
-            <option value="inativo" <?= $cliente['estado'] === 'inativo' ? 'selected' : '' ?>>Inativo</option>
-        </select><br><br>
+            <div class="form-field">
+                <label for="foto">Trocar foto (opcional)</label>
+                <input type="file" id="foto" name="foto" accept="image/jpeg,image/png">
+            </div>
 
-        <label>Foto atual:</label><br>
-        <?php if (!empty($cliente['foto'])): ?>
-            <img src="/ginasio-pw-final/assets/uploads/<?= htmlspecialchars($cliente['foto']) ?>" width="80"><br>
-        <?php endif; ?>
-        <label>Trocar foto (opcional):</label><br>
-        <input type="file" name="foto" accept="image/jpeg,image/png"><br><br>
+            <div class="form-actions">
+                <button class="button" type="submit">Guardar Alterações</button>
+                <a class="button secondary" href="listar.php">Cancelar</a>
+            </div>
+        </form>
+    </section>
+</div>
 
-        <button type="submit">Guardar Alterações</button>
-    </form>
-
-    <p><a href="listar.php">Voltar à lista</a></p>
-</body>
-</html>
+<?php require_once __DIR__ . '/../partials/footer.php'; ?>

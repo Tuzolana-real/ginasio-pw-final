@@ -8,6 +8,8 @@ require_perfil([PERFIL_ADMIN]);
 $controller = new ModalidadeController();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    require_csrf_token('/ginasio-pw-final/views/modalidades/criar.php');
+
     $dados = [
         'nome'      => $_POST['nome'],
         'descricao' => $_POST['descricao'],
@@ -21,39 +23,57 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 $flash = get_flash();
+$pageTitle = 'Nova Modalidade';
+
+require_once __DIR__ . '/../partials/header.php';
+require_once __DIR__ . '/../partials/alerts.php';
 ?>
-<!DOCTYPE html>
-<html lang="pt">
-<head>
-    <meta charset="UTF-8">
-    <title>Nova Modalidade - Sistema de Ginasio</title>
-</head>
-<body>
-    <h2>Nova Modalidade</h2>
 
-    <?php if ($flash): ?>
-        <p style="color: red"><?= htmlspecialchars($flash['message']) ?></p>
-    <?php endif; ?>
+<div class="page-grid">
+    <section class="panel">
+        <div class="actions-row" style="justify-content: space-between; align-items: center;">
+            <div>
+                <h2>Nova Modalidade</h2>
+                <p class="muted-text">Registe uma nova modalidade de treino.</p>
+            </div>
+            <a class="button secondary" href="listar.php">Voltar à lista</a>
+        </div>
 
-    <form method="POST">
-        <label>Nome:</label><br>
-        <input type="text" name="nome" required><br><br>
+        <form method="POST" class="form-grid">
+            <?= csrf_field() ?>
+            <div class="form-row">
+                <div class="form-field">
+                    <label for="nome">Nome</label>
+                    <input type="text" id="nome" name="nome" required>
+                </div>
+                <div class="form-field">
+                    <label for="categoria">Categoria</label>
+                    <input type="text" id="categoria" name="categoria">
+                </div>
+            </div>
 
-        <label>Categoria:</label><br>
-        <input type="text" name="categoria"><br><br>
+            <div class="form-row">
+                <div class="form-field">
+                    <label for="instrutor">Instrutor</label>
+                    <input type="text" id="instrutor" name="instrutor">
+                </div>
+                <div class="form-field">
+                    <label for="vagas">Vagas</label>
+                    <input type="number" id="vagas" name="vagas" min="0" value="0">
+                </div>
+            </div>
 
-        <label>Instrutor:</label><br>
-        <input type="text" name="instrutor"><br><br>
+            <div class="form-field">
+                <label for="descricao">Descrição</label>
+                <textarea id="descricao" name="descricao" rows="4"></textarea>
+            </div>
 
-        <label>Vagas:</label><br>
-        <input type="number" name="vagas" min="0" value="0"><br><br>
+            <div class="form-actions">
+                <button class="button" type="submit">Guardar</button>
+                <a class="button secondary" href="listar.php">Cancelar</a>
+            </div>
+        </form>
+    </section>
+</div>
 
-        <label>Descricao:</label><br>
-        <textarea name="descricao" rows="4" cols="40"></textarea><br><br>
-
-        <button type="submit">Guardar</button>
-    </form>
-
-    <p><a href="listar.php">Voltar a lista</a></p>
-</body>
-</html>
+<?php require_once __DIR__ . '/../partials/footer.php'; ?>
