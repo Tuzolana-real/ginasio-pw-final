@@ -20,4 +20,11 @@ class Utilizador extends Model
         $stmt = $this->db->prepare("UPDATE utilizadores SET senha = :senha WHERE id = :id");
         return $stmt->execute(['senha' => $novaSenhaHash, 'id' => $id]);
     }
+
+    /** Atualiza o nome e o email de um utilizador (dados básicos do perfil). */
+    public function updatePerfil($id, $nome, $email)
+    {
+        $stmt = $this->db->prepare("UPDATE utilizadores SET nome = :nome, email = :email WHERE id = :id");
+        return $stmt->execute(['nome' => $nome, 'email' => $email, 'id' => $id]);
+    }
 }

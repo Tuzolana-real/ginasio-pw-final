@@ -33,6 +33,25 @@ function has_role($role)
     return is_logged_in() && ($_SESSION['user_role'] ?? null) === $role;
 }
 
+/**
+ * Protege uma página, exigindo sessão iniciada e (opcionalmente) um
+ * conjunto de perfis autorizados. Redireciona e bloqueia se não cumprir.
+ *
+ * Exemplo de uso, no topo de uma view:
+ *   require_perfil([PERFIL_ADMIN, PERFIL_RECEPCIONISTA]);
+ */
+function require_perfil($perfisPermitidos = null)
+{
+    if (!is_logged_in()) {
+        redirect('/ginasio-pw-final/views/auth/login.php');
+    }
+
+    if ($perfisPermitidos !== null && !in_array($_SESSION['user_role'], $perfisPermitidos)) {
+        set_flash('erro', 'Não tens permissão para aceder a esta página.');
+        redirect('/ginasio-pw-final/index.php');
+    }
+}
+
 /** Guarda uma mensagem "flash" para mostrar na próxima página (sucesso/erro). */
 function set_flash($type, $message)
 {
@@ -49,3 +68,8 @@ function get_flash()
     }
     return null;
 }
+
+// IDs correspondentes à tabela "perfis" (ver database/ginasio.sql)
+define('PERFIL_ADMIN', 1);
+define('PERFIL_RECEPCIONISTA', 2);
+define('PERFIL_CLIENTE', 3);
