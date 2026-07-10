@@ -14,22 +14,17 @@ if (!$cliente) {
     redirect('/ginasio-pw-final/views/clientes/listar.php');
 }
 
+$dados = $cliente;
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     require_csrf_token('/ginasio-pw-final/views/clientes/editar.php');
 
-    $dados = [
-        'nome'            => $_POST['nome'],
-        'bi'              => $_POST['bi'],
-        'data_nascimento' => $_POST['data_nascimento'],
-        'genero'          => $_POST['genero'],
-        'telefone'        => $_POST['telefone'],
-        'email'           => $_POST['email'],
-        'endereco'        => $_POST['endereco'],
-        'estado'          => $_POST['estado'],
-    ];
+    $dados = sanitize_input($_POST);
+    $dados['estado'] = $_POST['estado'] ?? $cliente['estado'];
 
-    $controller->atualizar($cliente['id'], $dados, $_FILES['foto'] ?? null);
-    redirect('/ginasio-pw-final/views/clientes/listar.php');
+    if ($controller->atualizar($cliente['id'], $dados, $_FILES['foto'] ?? null)) {
+        redirect('/ginasio-pw-final/views/clientes/listar.php');
+    }
 }
 
 $pageTitle = 'Editar Cliente';
@@ -53,25 +48,25 @@ require_once __DIR__ . '/../partials/alerts.php';
             <div class="form-row">
                 <div class="form-field">
                     <label for="nome">Nome</label>
-                    <input type="text" id="nome" name="nome" value="<?= htmlspecialchars($cliente['nome']) ?>" required>
+                    <input type="text" id="nome" name="nome" value="<?= htmlspecialchars($dados['nome'] ?? '') ?>" required>
                 </div>
                 <div class="form-field">
                     <label for="bi">BI</label>
-                    <input type="text" id="bi" name="bi" value="<?= htmlspecialchars($cliente['bi'] ?? '') ?>">
+                    <input type="text" id="bi" name="bi" value="<?= htmlspecialchars($dados['bi'] ?? '') ?>">
                 </div>
             </div>
 
             <div class="form-row">
                 <div class="form-field">
                     <label for="data_nascimento">Data de nascimento</label>
-                    <input type="date" id="data_nascimento" name="data_nascimento" value="<?= htmlspecialchars($cliente['data_nascimento'] ?? '') ?>">
+                    <input type="date" id="data_nascimento" name="data_nascimento" value="<?= htmlspecialchars($dados['data_nascimento'] ?? '') ?>">
                 </div>
                 <div class="form-field">
                     <label for="genero">Género</label>
                     <select id="genero" name="genero">
-                        <option value="M" <?= $cliente['genero'] === 'M' ? 'selected' : '' ?>>Masculino</option>
-                        <option value="F" <?= $cliente['genero'] === 'F' ? 'selected' : '' ?>>Feminino</option>
-                        <option value="Outro" <?= $cliente['genero'] === 'Outro' ? 'selected' : '' ?>>Outro</option>
+                        <option value="M" <?= ($dados['genero'] ?? '') === 'M' ? 'selected' : '' ?>>Masculino</option>
+                        <option value="F" <?= ($dados['genero'] ?? '') === 'F' ? 'selected' : '' ?>>Feminino</option>
+                        <option value="Outro" <?= ($dados['genero'] ?? '') === 'Outro' ? 'selected' : '' ?>>Outro</option>
                     </select>
                 </div>
             </div>
@@ -79,24 +74,24 @@ require_once __DIR__ . '/../partials/alerts.php';
             <div class="form-row">
                 <div class="form-field">
                     <label for="telefone">Telefone</label>
-                    <input type="text" id="telefone" name="telefone" value="<?= htmlspecialchars($cliente['telefone'] ?? '') ?>">
+                    <input type="text" id="telefone" name="telefone" value="<?= htmlspecialchars($dados['telefone'] ?? '') ?>">
                 </div>
                 <div class="form-field">
                     <label for="email">Email</label>
-                    <input type="email" id="email" name="email" value="<?= htmlspecialchars($cliente['email'] ?? '') ?>">
+                    <input type="email" id="email" name="email" value="<?= htmlspecialchars($dados['email'] ?? '') ?>">
                 </div>
             </div>
 
             <div class="form-field">
                 <label for="endereco">Endereço</label>
-                <input type="text" id="endereco" name="endereco" value="<?= htmlspecialchars($cliente['endereco'] ?? '') ?>">
+                <input type="text" id="endereco" name="endereco" value="<?= htmlspecialchars($dados['endereco'] ?? '') ?>">
             </div>
 
             <div class="form-field">
                 <label for="estado">Estado</label>
                 <select id="estado" name="estado">
-                    <option value="ativo" <?= $cliente['estado'] === 'ativo' ? 'selected' : '' ?>>Ativo</option>
-                    <option value="inativo" <?= $cliente['estado'] === 'inativo' ? 'selected' : '' ?>>Inativo</option>
+                    <option value="ativo" <?= ($dados['estado'] ?? '') === 'ativo' ? 'selected' : '' ?>>Ativo</option>
+                    <option value="inativo" <?= ($dados['estado'] ?? '') === 'inativo' ? 'selected' : '' ?>>Inativo</option>
                 </select>
             </div>
 

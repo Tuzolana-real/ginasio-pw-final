@@ -7,23 +7,26 @@ if (!is_logged_in()) {
     redirect('/ginasio-pw-final/views/auth/login.php');
 }
 
+$dados = [
+    'nome'            => '',
+    'bi'              => '',
+    'data_nascimento' => '',
+    'genero'          => 'M',
+    'telefone'        => '',
+    'email'           => '',
+    'endereco'        => '',
+];
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     require_csrf_token('/ginasio-pw-final/views/clientes/criar.php');
 
     $controller = new ClienteController();
 
-    $dados = [
-        'nome'            => $_POST['nome'],
-        'bi'              => $_POST['bi'],
-        'data_nascimento' => $_POST['data_nascimento'],
-        'genero'          => $_POST['genero'],
-        'telefone'        => $_POST['telefone'],
-        'email'           => $_POST['email'],
-        'endereco'        => $_POST['endereco'],
-    ];
+    $dados = sanitize_input($_POST);
 
-    $controller->criar($dados, $_FILES['foto'] ?? null);
-    redirect('/ginasio-pw-final/views/clientes/listar.php');
+    if ($controller->criar($dados, $_FILES['foto'] ?? null)) {
+        redirect('/ginasio-pw-final/views/clientes/listar.php');
+    }
 }
 
 $flash = get_flash();
@@ -48,24 +51,24 @@ require_once __DIR__ . '/../partials/alerts.php';
             <div class="form-row">
                 <div class="form-field">
                     <label for="nome">Nome</label>
-                    <input type="text" id="nome" name="nome" required>
+                    <input type="text" id="nome" name="nome" required value="<?= htmlspecialchars($dados['nome']) ?>">
                 </div>
                 <div class="form-field">
                     <label for="bi">BI</label>
-                    <input type="text" id="bi" name="bi">
+                    <input type="text" id="bi" name="bi" value="<?= htmlspecialchars($dados['bi']) ?>">
                 </div>
             </div>
 
             <div class="form-row">
                 <div class="form-field">
                     <label for="data_nascimento">Data de nascimento</label>
-                    <input type="date" id="data_nascimento" name="data_nascimento">
+                    <input type="date" id="data_nascimento" name="data_nascimento" value="<?= htmlspecialchars($dados['data_nascimento']) ?>">
                 </div>
                 <div class="form-field">
                     <label for="genero">Género</label>
                     <select id="genero" name="genero">
-                        <option value="M">Masculino</option>
-                        <option value="F">Feminino</option>
+                        <option value="M" <?= $dados['genero'] === 'M' ? 'selected' : '' ?>>Masculino</option>
+                        <option value="F" <?= $dados['genero'] === 'F' ? 'selected' : '' ?>>Feminino</option>
                     </select>
                 </div>
             </div>
@@ -73,17 +76,17 @@ require_once __DIR__ . '/../partials/alerts.php';
             <div class="form-row">
                 <div class="form-field">
                     <label for="telefone">Telefone</label>
-                    <input type="text" id="telefone" name="telefone">
+                    <input type="text" id="telefone" name="telefone" value="<?= htmlspecialchars($dados['telefone']) ?>">
                 </div>
                 <div class="form-field">
                     <label for="email">Email</label>
-                    <input type="email" id="email" name="email">
+                    <input type="email" id="email" name="email" value="<?= htmlspecialchars($dados['email']) ?>">
                 </div>
             </div>
 
             <div class="form-field">
                 <label for="endereco">Endereço</label>
-                <input type="text" id="endereco" name="endereco">
+                <input type="text" id="endereco" name="endereco" value="<?= htmlspecialchars($dados['endereco']) ?>">
             </div>
 
             <div class="form-field">

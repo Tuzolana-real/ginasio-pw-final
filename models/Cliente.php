@@ -11,4 +11,14 @@ class Cliente extends Model
     {
         return $this->search('nome', $nome);
     }
+
+    /** Procura cliente pelo BI, que é um campo único. */
+    public function findByBI($bi)
+    {
+        if (empty($bi)) {
+            return false;
+        }
+
+        return $this->findByColumn('bi', $bi);
+    }
 }

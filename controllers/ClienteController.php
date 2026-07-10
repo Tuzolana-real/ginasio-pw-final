@@ -25,9 +25,15 @@ class ClienteController
     public function criar($dados, $ficheiroFoto)
     {
         $dados = sanitize_input($dados);
+        unset($dados['csrf_token']);
 
         if (empty($dados['nome'])) {
             set_flash('erro', 'O nome é obrigatório.');
+            return false;
+        }
+
+        if (!empty($dados['bi']) && $this->clienteModel->findByBI($dados['bi'])) {
+            set_flash('erro', 'Já existe um cliente com esse BI.');
             return false;
         }
 
@@ -38,7 +44,16 @@ class ClienteController
 
         $dados['foto'] = $nomeFicheiro;
 
-        $this->clienteModel->create($dados);
+        try {
+            $this->clienteModel->create($dados);
+        } catch (PDOException $e) {
+            if ($e->errorInfo[1] === 1062) {
+                set_flash('erro', 'Já existe um cliente com um valor único duplicado.');
+                return false;
+            }
+            throw $e;
+        }
+
         set_flash('sucesso', 'Cliente cadastrado com sucesso.');
         return true;
     }
@@ -46,10 +61,19 @@ class ClienteController
     public function atualizar($id, $dados, $ficheiroFoto)
     {
         $dados = sanitize_input($dados);
+        unset($dados['csrf_token']);
 
         if (empty($dados['nome'])) {
             set_flash('erro', 'O nome é obrigatório.');
             return false;
+        }
+
+        if (!empty($dados['bi'])) {
+            $clienteExistente = $this->clienteModel->findByBI($dados['bi']);
+            if ($clienteExistente && $clienteExistente['id'] != $id) {
+                set_flash('erro', 'Já existe outro cliente com esse BI.');
+                return false;
+            }
         }
 
         // Só processa novo upload se o utilizador escolheu um ficheiro novo
@@ -61,7 +85,16 @@ class ClienteController
             $dados['foto'] = $nomeFicheiro;
         }
 
-        $this->clienteModel->update($id, $dados);
+        try {
+            $this->clienteModel->update($id, $dados);
+        } catch (PDOException $e) {
+            if ($e->errorInfo[1] === 1062) {
+                set_flash('erro', 'Já existe outro cliente com um valor único duplicado.');
+                return false;
+            }
+            throw $e;
+        }
+
         set_flash('sucesso', 'Cliente atualizado com sucesso.');
         return true;
     }

@@ -15,6 +15,7 @@ abstract class Model
     protected $db;
     protected $table;
     protected $primaryKey = 'id';
+    protected $tableColumns = null;
 
     public function __construct()
     {
@@ -39,9 +40,22 @@ abstract class Model
         return $stmt->fetch();
     }
 
+    /** Procura um registo por uma coluna arbitrária. */
+    public function findByColumn($column, $value)
+    {
+        $stmt = $this->db->prepare("SELECT * FROM {$this->table} WHERE {$column} = :value");
+        $stmt->execute(['value' => $value]);
+        return $stmt->fetch();
+    }
+
     /** Insere um novo registo. $data = ['coluna' => valor, ...] */
     public function create($data)
     {
+        $data = $this->filterDataToTableColumns($data);
+        if (empty($data)) {
+            return false;
+        }
+
         $columns      = implode(', ', array_keys($data));
         $placeholders = ':' . implode(', :', array_keys($data));
 
@@ -55,6 +69,10 @@ abstract class Model
     /** Atualiza um registo existente pelo id. */
     public function update($id, $data)
     {
+        $data = $this->filterDataToTableColumns($data);
+        if (empty($data)) {
+            return false;
+        }
         $set = [];
         foreach (array_keys($data) as $column) {
             $set[] = "{$column} = :{$column}";
@@ -82,5 +100,24 @@ abstract class Model
         $stmt = $this->db->prepare("SELECT * FROM {$this->table} WHERE {$column} LIKE :term");
         $stmt->execute(['term' => "%{$term}%"]);
         return $stmt->fetchAll();
+    }
+
+    protected function getTableColumns()
+    {
+        if ($this->tableColumns !== null) {
+            return $this->tableColumns;
+        }
+
+        $stmt = $this->db->prepare("DESCRIBE {$this->table}");
+        $stmt->execute();
+        $this->tableColumns = $stmt->fetchAll(PDO::FETCH_COLUMN);
+
+        return $this->tableColumns;
+    }
+
+    protected function filterDataToTableColumns(array $data)
+    {
+        $validColumns = array_flip($this->getTableColumns());
+        return array_intersect_key($data, $validColumns);
     }
 }
