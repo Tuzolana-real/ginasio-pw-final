@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . '/../models/Cliente.php';
+require_once __DIR__ . '/../models/Utilizador.php';
 require_once __DIR__ . '/../includes/helpers.php';
 
 class ClienteController
@@ -25,15 +26,9 @@ class ClienteController
     public function criar($dados, $ficheiroFoto)
     {
         $dados = sanitize_input($dados);
-        unset($dados['csrf_token']);
 
         if (empty($dados['nome'])) {
             set_flash('erro', 'O nome é obrigatório.');
-            return false;
-        }
-
-        if (!empty($dados['bi']) && $this->clienteModel->findByBI($dados['bi'])) {
-            set_flash('erro', 'Já existe um cliente com esse BI.');
             return false;
         }
 
@@ -44,39 +39,31 @@ class ClienteController
 
         $dados['foto'] = $nomeFicheiro;
 
-        try {
-            $this->clienteModel->create($dados);
-        } catch (PDOException $e) {
-            if ($e->errorInfo[1] === 1062) {
-                set_flash('erro', 'Já existe um cliente com um valor único duplicado.');
-                return false;
-            }
-            throw $e;
+        $conta = $this->criarContaLogin($dados['email'] ?? '', $dados['nome']);
+        if ($conta !== null) {
+            $dados['utilizador_id'] = $conta['utilizador_id'];
         }
 
-        set_flash('sucesso', 'Cliente cadastrado com sucesso.');
+        $this->clienteModel->create($dados);
+
+        if ($conta !== null) {
+            set_flash('sucesso', "Cliente cadastrado com sucesso. Foi criada uma conta de acesso — email: {$dados['email']}, senha temporária: {$conta['senha_gerada']}. Comunique esta senha ao cliente; ele deve alterá-la no primeiro acesso.");
+        } else {
+            set_flash('sucesso', 'Cliente cadastrado com sucesso.');
+        }
+
         return true;
     }
 
     public function atualizar($id, $dados, $ficheiroFoto)
     {
         $dados = sanitize_input($dados);
-        unset($dados['csrf_token']);
 
         if (empty($dados['nome'])) {
             set_flash('erro', 'O nome é obrigatório.');
             return false;
         }
 
-        if (!empty($dados['bi'])) {
-            $clienteExistente = $this->clienteModel->findByBI($dados['bi']);
-            if ($clienteExistente && $clienteExistente['id'] != $id) {
-                set_flash('erro', 'Já existe outro cliente com esse BI.');
-                return false;
-            }
-        }
-
-        // Só processa novo upload se o utilizador escolheu um ficheiro novo
         if (!empty($ficheiroFoto['name'])) {
             $nomeFicheiro = $this->processarUpload($ficheiroFoto);
             if ($nomeFicheiro === false) {
@@ -85,17 +72,24 @@ class ClienteController
             $dados['foto'] = $nomeFicheiro;
         }
 
-        try {
-            $this->clienteModel->update($id, $dados);
-        } catch (PDOException $e) {
-            if ($e->errorInfo[1] === 1062) {
-                set_flash('erro', 'Já existe outro cliente com um valor único duplicado.');
-                return false;
+        // Se o cliente ainda não tinha conta de login e agora tem email preenchido, cria a conta
+        $clienteAtual = $this->clienteModel->findById($id);
+        $conta = null;
+        if (empty($clienteAtual['utilizador_id']) && !empty($dados['email'])) {
+            $conta = $this->criarContaLogin($dados['email'], $dados['nome']);
+            if ($conta !== null) {
+                $dados['utilizador_id'] = $conta['utilizador_id'];
             }
-            throw $e;
         }
 
-        set_flash('sucesso', 'Cliente atualizado com sucesso.');
+        $this->clienteModel->update($id, $dados);
+
+        if ($conta !== null) {
+            set_flash('sucesso', "Cliente atualizado com sucesso. Foi criada uma conta de acesso — email: {$dados['email']}, senha temporária: {$conta['senha_gerada']}.");
+        } else {
+            set_flash('sucesso', 'Cliente atualizado com sucesso.');
+        }
+
         return true;
     }
 
@@ -108,6 +102,42 @@ class ClienteController
     public function pesquisar($termo)
     {
         return $this->clienteModel->searchByNome($termo);
+    }
+
+    /**
+     * Cria uma conta de login (tabela utilizadores) com perfil Cliente,
+     * associada ao email fornecido, com uma senha temporária gerada
+     * aleatoriamente. Devolve null se o email estiver vazio ou já em uso
+     * (não cria conta duplicada nem bloqueia o registo do cliente).
+     */
+    private function criarContaLogin($email, $nome)
+    {
+        if (empty($email)) {
+            return null;
+        }
+
+        $utilizadorModel = new Utilizador();
+
+        if ($utilizadorModel->findByEmail($email)) {
+            return null; // já existe uma conta com este email — não duplicar
+        }
+
+        $senhaGerada = bin2hex(random_bytes(4)); // 8 caracteres, ex: "a1b2c3d4"
+
+        $utilizadorModel->create([
+            'nome'      => $nome,
+            'email'     => $email,
+            'senha'     => password_hash($senhaGerada, PASSWORD_DEFAULT),
+            'perfil_id' => PERFIL_CLIENTE,
+            'ativo'     => 1,
+        ]);
+
+        $novoUtilizador = $utilizadorModel->findByEmail($email);
+
+        return [
+            'utilizador_id' => $novoUtilizador['id'],
+            'senha_gerada'  => $senhaGerada,
+        ];
     }
 
     /**
